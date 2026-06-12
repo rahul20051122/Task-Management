@@ -33,14 +33,15 @@ SCT_WD_4/
 ```
 
  📸 Screenshots
-
-[Home Screen](homescreen.png)
-
-
-[Task Management](task.png)
+ ##Home Screen
+![Home Screen](homescreen.png)
 
 
-[Completed Tasks](completed.png)
+##Task Management
+![Task Management](task.png)
+
+##Completed Tasks
+![Completed Tasks](completed.png)
 
 
 
