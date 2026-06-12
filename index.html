@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OrbitTask - A modern, high-performance To-Do web application. Organise, track, and complete your tasks with responsive design, dynamic counters, and offline local storage support.">
+    <title>OrbitTask // Premium Productivity Dashboard</title>
+    <!-- CSS stylesheet link -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Wrapper App Container -->
+    <main class="app-container" id="app">
+        
+        <!-- Dashboard Header Panel -->
+        <header class="app-header">
+            <div class="header-welcome">
+                <h1 id="greeting">Hello, Achiever</h1>
+                <p id="current-date">Friday, June 12, 2026</p>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-ring">
+                    <svg viewBox="0 0 36 36">
+                        <circle class="ring-bg" cx="18" cy="18" r="15.915"></circle>
+                        <circle class="ring-progress" id="progress-circle" cx="18" cy="18" r="15.915" stroke-dasharray="100" stroke-dashoffset="100"></circle>
+                    </svg>
+                    <span class="stat-percent" id="completion-percentage">0%</span>
+                </div>
+                <div class="stat-text">
+                    <span class="stat-count" id="task-ratio">0/0</span>
+                    <span class="stat-label">Tasks Done</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout with Sidebar + Content -->
+        <section class="main-layout">
+            
+            <!-- Filter & Category Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <!-- Status Filter Section -->
+                <div class="glass-panel">
+                    <h2 class="sidebar-title">Filters</h2>
+                    <ul class="filter-list">
+                        <li>
+                            <button class="filter-btn active" data-filter="all" id="filter-all">
+                                <i data-lucide="layout-grid"></i>
+                                <span>All Tasks</span>
+                                <span class="count-badge" id="count-all">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn" data-filter="pending" id="filter-pending">
+                                <i data-lucide="clock"></i>
+                                <span>Pending</span>
+                                <span class="count-badge" id="count-pending">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn" data-filter="completed" id="filter-completed">
+                                <i data-lucide="check-circle-2"></i>
+                                <span>Completed</span>
+                                <span class="count-badge" id="count-completed">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn" data-filter="overdue" id="filter-overdue">
+                                <i data-lucide="alert-triangle"></i>
+                                <span>Overdue</span>
+                                <span class="count-badge" id="count-overdue">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Category Filters Section -->
+                <div class="glass-panel">
+                    <h2 class="sidebar-title">Categories</h2>
+                    <ul class="filter-list">
+                        <li>
+                            <button class="filter-btn category-btn" data-category="work" id="cat-work">
+                                <span class="category-dot work"></span>
+                                <span>Work</span>
+                                <span class="count-badge" id="count-work">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn category-btn" data-category="personal" id="cat-personal">
+                                <span class="category-dot personal"></span>
+                                <span>Personal</span>
+                                <span class="count-badge" id="count-personal">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn category-btn" data-category="shopping" id="cat-shopping">
+                                <span class="category-dot shopping"></span>
+                                <span>Shopping</span>
+                                <span class="count-badge" id="count-shopping">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn category-btn" data-category="fitness" id="cat-fitness">
+                                <span class="category-dot fitness"></span>
+                                <span>Fitness</span>
+                                <span class="count-badge" id="count-fitness">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn category-btn" data-category="design" id="cat-design">
+                                <span class="category-dot design"></span>
+                                <span>Design</span>
+                                <span class="count-badge" id="count-design">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn category-btn" data-category="others" id="cat-others">
+                                <span class="category-dot others"></span>
+                                <span>Others</span>
+                                <span class="count-badge" id="count-others">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Tasks Listing and Toolbar Area -->
+            <div class="content-area">
+                
+                <!-- Toolbar with Search & Controls -->
+                <div class="toolbar">
+                    <div class="search-wrapper">
+                        <input type="text" class="search-input" id="search-input" placeholder="Search tasks by title or description..." aria-label="Search tasks">
+                        <i data-lucide="search"></i>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <select class="sort-select" id="sort-select" aria-label="Sort tasks">
+                            <option value="dueDateAsc">Sort: Due Date (Earliest)</option>
+                            <option value="dueDateDesc">Sort: Due Date (Latest)</option>
+                            <option value="priorityDesc">Sort: Priority (High to Low)</option>
+                            <option value="priorityAsc">Sort: Priority (Low to High)</option>
+                            <option value="alphaAsc">Sort: Alphabetical (A-Z)</option>
+                            <option value="createdDesc">Sort: Date Created (Newest)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-primary" id="add-task-trigger">
+                        <i data-lucide="plus"></i>
+                        <span>New Task</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Task Cards Container -->
+                <div class="tasks-container" id="tasks-container">
+                    <!-- Tasks will be dynamically injected here via JS -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Floating Action Button for Mobile -->
+    <button class="fab-btn" id="fab-add-task" aria-label="Add new task">
+        <i data-lucide="plus"></i>
+    </button>
+
+    <!-- Add/Edit Task Modal Overlay -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="modal-title">Create New Task</h2>
+                <button class="close-btn" id="close-modal" aria-label="Close modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </header>
+
+            <form class="modal-form" id="task-form" autocomplete="off">
+                <!-- Invisible task ID field to support editing -->
+                <input type="hidden" id="task-id">
+
+                <!-- Title Input -->
+                <div class="form-group">
+                    <label for="task-title-input">Task Title *</label>
+                    <input type="text" class="form-input" id="task-title-input" required placeholder="e.g. Design homepage mockup" maxlength="60">
+                </div>
+
+                <!-- Description Input -->
+                <div class="form-group">
+                    <label for="task-desc-input">Description</label>
+                    <textarea class="form-input" id="task-desc-input" placeholder="Enter task notes, details, or checklist items..." maxlength="300"></textarea>
+                </div>
+
+                <!-- Category & Priority Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-category-input">Category</label>
+                        <select class="form-input form-select" id="task-category-input">
+                            <option value="work">💼 Work</option>
+                            <option value="personal">🏠 Personal</option>
+                            <option value="shopping">🛒 Shopping</option>
+                            <option value="fitness">🏃 Fitness</option>
+                            <option value="design">🎨 Design</option>
+                            <option value="others">✨ Others</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-priority-input">Priority</label>
+                        <select class="form-input form-select" id="task-priority-input">
+                            <option value="low">🟢 Low Priority</option>
+                            <option value="medium" selected>🟡 Medium Priority</option>
+                            <option value="high">🔴 High Priority</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date & Time Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-date-input">Due Date *</label>
+                        <input type="date" class="form-input" id="task-date-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-time-input">Due Time *</label>
+                        <input type="time" class="form-input" id="task-time-input" required value="12:00">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-modal">Cancel</button>
+                    <button type="submit" class="btn-primary" id="save-task-btn">
+                        <i data-lucide="check"></i>
+                        <span>Save Task</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Banner Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- SVG Graphic Templates used dynamically (Empty States) -->
+    <template id="empty-state-template">
+        <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.375c.621 0 1.125-.504 1.125-1.125V14.25c0-.621-.504-1.125-1.125-1.125H9.75M9.75 9V5.25c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V9M9 9h6.75M12 21a9.003 9.003 0 008.354-5.646 9.003 9.003 0 00-8.354-5.646 9.003 9.003 0 00-8.354 5.646 9.003 9.003 0 008.354 5.646z" />
+            </svg>
+            <h3>No tasks found</h3>
+            <p>Ready to plan your day? Tap the plus icon or "New Task" button to get started!</p>
+        </div>
+    </template>
+
+    <!-- Lucide Icons Library and Core Script -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="app.js"></script>
+</body>
+</html>
