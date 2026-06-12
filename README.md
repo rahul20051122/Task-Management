@@ -34,18 +34,13 @@ SCT_WD_4/
 
  📸 Screenshots
 
-Home Screen
-Screenshot 2026-06-12 142722.png
+[Home Screen](home_screen.png)
 
- Task Management
 
-(Add Screenshot Here)
+[Task Management](task.png)
 
-Completed Tasks
 
-(Add Screenshot Here)
-
-Mobile View
+[Completed Tasks](completed.png)
 
 
 
