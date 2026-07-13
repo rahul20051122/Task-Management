@@ -1,8 +1,8 @@
 {
-  "name": "sct_wd_4",
+  "name": "TaskManagement",
   "version": "1.0.0",
   "description": "To-Do Web Application\r # 📝 To-Do Web Application",
-  "main": "app.js",
+  "main": "server.js"
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
