@@ -1,6 +1,10 @@
-# Task Management
-To-Do Web Application
-# 📝 To-Do Web Application
+# 📝 Task Management Web Application
+
+A modern and responsive Task Management Web Application that helps users organize, track, and manage their daily tasks efficiently.
+
+## 🌐 Live Demo
+
+🔗 https://task-management-1-80ri.onrender.com
 
 A modern and responsive To-Do Web Application developed 
 ## 🚀 Features
@@ -16,18 +20,55 @@ A modern and responsive To-Do Web Application developed
 
 ## 🛠️ Technologies Used
 
-* HTML5
-* CSS3
-* JavaScript (ES6)
+### Frontend
+- HTML5
+- CSS3
+- JavaScript
 
-## 📂 Project Structure
+### Backend
+- Node.js
+- Express.js
+
+### Authentication
+- JSON Web Tokens (JWT)
+
+### Data Storage
+- JSON File Based Storage
+
+### Deployment
+- Render
+- GitHub
+
+---
+
+
+## 📁 Project Structure
 
 ```text
-Task Management/
+TaskManagement/
 │
+├── data/
+│   ├── users.json
+│   └── tasks.json
+│
+├── middleware/
+│   └── auth.js
+│
+├── models/
+│   ├── taskModel.js
+│   └── userModel.js
+│
+├── routes/
+│   ├── authRoutes.js
+│   └── taskRoutes.js
+│
+├── login.html
+├── register.html
 ├── index.html
 ├── style.css
-├── script.js
+├── app.js
+├── server.js
+├── package.json
 └── README.md
 ```
 
@@ -56,14 +97,17 @@ This application helps users manage their daily activities efficiently by provid
 * Responsive Web Design
 * Interactive User Interface
 
-🔮 Future Enhancements
+## 🎯 Future Improvements
 
-* Dark Mode
-* Task Categories
-* Priority Levels
-* Search Functionality
-* Task Filtering
-* Notifications and Reminders
+- MongoDB Atlas Integration
+- Task Priorities
+- Due Dates
+- Email Notifications
+- Dark Mode
+- Task Categories
+- Reminder System
+
+---
 
 📖 Learning Outcomes
 
@@ -74,6 +118,26 @@ Through this project, I gained practical experience in:
 * User Interface Design
 * Local Storage Management
 * Responsive Layout Design
+
+  ## 👨‍💻 Developer
+
+**Koniki Rahul Kumar**
+
+🎓 B.Tech CSE - 3rd Year  
+🏫 Vasireddy Venkatadri International Technological University
+
+### Connect with Me
+
+GitHub:
+https://github.com/rahul20051122
+
+LinkedIn:
+https://www.linkedin.com/in/koniki-rahul-kumar-7a7a8b339
+
+Email:
+konikirahulkumar@gmail.com
+
+---
 
  🙏 Acknowledgement
 
