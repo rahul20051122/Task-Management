@@ -1,9 +1,8 @@
-# SCT_WD_4
+# Task Management
 To-Do Web Application
 # 📝 To-Do Web Application
 
-A modern and responsive To-Do Web Application developed as **Task 4** of the **SkillCraft Technology Web Development Internship**.
-
+A modern and responsive To-Do Web Application developed 
 ## 🚀 Features
 
 * Add new tasks
@@ -24,7 +23,7 @@ A modern and responsive To-Do Web Application developed as **Task 4** of the **S
 ## 📂 Project Structure
 
 ```text
-SCT_WD_4/
+Task Management/
 │
 ├── index.html
 ├── style.css
@@ -78,6 +77,6 @@ Through this project, I gained practical experience in:
 
  🙏 Acknowledgement
 
-This project was completed as part of the **SkillCraft Technology Web Development Internship Program**.
+This project was completed as part of the 
 
 ⭐ If you found this project useful, feel free to star the repository.
