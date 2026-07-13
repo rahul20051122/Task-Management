@@ -1,6 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- API & AUTH STATE ---
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:8000'
+        : window.location.origin;
+    const token = localStorage.getItem('token');
+    const loggedInUsername = localStorage.getItem('username') || 'Achiever';
+
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     // --- STATE MANAGEMENT ---
-    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let tasks = [];
     let activeFilter = 'all'; // can be 'all', 'pending', 'completed', 'overdue' or any category
     let activeSort = 'dueDateAsc';
     let searchQuery = '';
@@ -73,11 +85,35 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (hour < 17) {
             greeting = 'Good afternoon';
         }
-        greetingEl.textContent = `${greeting}, Achiever`;
+        greetingEl.textContent = `${greeting}, ${loggedInUsername}`;
 
         // Date format (e.g. Friday, June 12, 2026)
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         currentDateEl.textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Fetch tasks from backend
+    async function fetchTasks() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                window.location.href = 'login.html';
+                return;
+            }
+            if (!response.ok) throw new Error('Failed to fetch tasks');
+            tasks = await response.json();
+            updateDashboard();
+            renderTasks();
+        } catch (err) {
+            console.error(err);
+            showToast('Could not load tasks from server.', 'warning');
+        }
     }
 
     // Parse task due datetime into a Date object
@@ -93,9 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return due < now;
     }
 
-    // Save tasks to Local Storage
+    // Save tasks (no local storage save, handled via API)
     function saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
         updateDashboard();
     }
 
@@ -223,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Submit Handler
-    taskForm.addEventListener('submit', (e) => {
+    taskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const title = taskTitleInput.value.trim();
@@ -239,57 +274,104 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (id) {
-            // Edit Mode
-            const index = tasks.findIndex(t => t.id === id);
-            if (index !== -1) {
-                tasks[index] = {
-                    ...tasks[index],
-                    title,
-                    desc,
-                    category,
-                    priority,
-                    dueDate,
-                    dueTime
-                };
-                showToast('Task updated successfully!', 'success');
-            }
-        } else {
-            // New Task Mode
-            const newTask = {
-                id: generateId(),
-                title,
-                desc,
-                category,
-                priority,
-                dueDate,
-                dueTime,
-                completed: false,
-                createdAt: Date.now()
-            };
-            tasks.push(newTask);
-            showToast('New task created!', 'success');
-        }
+        const taskData = { title, desc, category, priority, dueDate, dueTime };
+        const saveBtn = document.getElementById('save-task-btn');
+        const originalBtnHtml = saveBtn.innerHTML;
+        
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<span>Saving...</span>`;
 
-        saveTasks();
-        closeModal();
-        renderTasks();
+        try {
+            if (id) {
+                // Edit Mode
+                const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(taskData)
+                });
+                if (!response.ok) throw new Error('Failed to update task');
+                const updatedTask = await response.json();
+                
+                const index = tasks.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    tasks[index] = updatedTask;
+                }
+                showToast('Task updated successfully!', 'success');
+            } else {
+                // New Task Mode
+                const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(taskData)
+                });
+                if (!response.ok) throw new Error('Failed to create task');
+                const newTask = await response.json();
+                tasks.push(newTask);
+                showToast('New task created!', 'success');
+            }
+
+            saveTasks();
+            closeModal();
+            renderTasks();
+        } catch (err) {
+            console.error(err);
+            showToast('Could not save task to server.', 'danger');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnHtml;
+            lucide.createIcons();
+        }
     });
 
     // --- CRUD OPERATIONS ---
     
     // Toggle completed status
-    window.toggleTaskComplete = function(id) {
+    window.toggleTaskComplete = async function(id) {
         const task = tasks.find(t => t.id === id);
         if (task) {
-            task.completed = !task.completed;
+            const originalCompleted = task.completed;
+            const newCompleted = !originalCompleted;
+            
+            // Optimistic update
+            task.completed = newCompleted;
             saveTasks();
             renderTasks();
             
-            if (task.completed) {
-                showToast('Task completed! Keep it up!', 'success');
-            } else {
-                showToast('Task marked active.', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ completed: newCompleted })
+                });
+                if (!response.ok) throw new Error('Failed to update status');
+                const updatedTask = await response.json();
+                
+                const index = tasks.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    tasks[index] = updatedTask;
+                }
+                
+                if (newCompleted) {
+                    showToast('Task completed! Keep it up!', 'success');
+                } else {
+                    showToast('Task marked active.', 'info');
+                }
+            } catch (err) {
+                console.error(err);
+                // Rollback
+                task.completed = originalCompleted;
+                saveTasks();
+                renderTasks();
+                showToast('Failed to sync completion state with server.', 'danger');
             }
         }
     };
@@ -312,30 +394,69 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Wait for collapse animation before removing from state
-            setTimeout(() => {
-                lastDeletedTask = tasks[index];
-                lastDeletedIndex = index;
+            setTimeout(async () => {
+                const deletedTaskLocal = tasks[index];
                 
-                // Remove task
-                tasks.splice(index, 1);
-                saveTasks();
-                renderTasks();
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (!response.ok) throw new Error('Failed to delete task');
+                    
+                    lastDeletedTask = deletedTaskLocal;
+                    lastDeletedIndex = index;
+                    
+                    tasks.splice(index, 1);
+                    saveTasks();
+                    renderTasks();
 
-                // Show undo toast
-                showToast('Task deleted', 'danger', 'Undo', restoreDeletedTask);
+                    showToast('Task deleted', 'danger', 'Undo', restoreDeletedTask);
+                } catch (err) {
+                    console.error(err);
+                    if (taskCard) {
+                        taskCard.classList.remove('deleting');
+                    }
+                    showToast('Failed to delete task from server.', 'danger');
+                }
             }, 300);
         }
     };
 
     // Restore task callback (Undo operation)
-    function restoreDeletedTask() {
+    async function restoreDeletedTask() {
         if (lastDeletedTask !== null && lastDeletedIndex !== null) {
-            tasks.splice(lastDeletedIndex, 0, lastDeletedTask);
-            lastDeletedTask = null;
-            lastDeletedIndex = null;
-            saveTasks();
-            renderTasks();
-            showToast('Task restored!', 'success');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: lastDeletedTask.title,
+                        desc: lastDeletedTask.desc,
+                        category: lastDeletedTask.category,
+                        priority: lastDeletedTask.priority,
+                        dueDate: lastDeletedTask.dueDate,
+                        dueTime: lastDeletedTask.dueTime
+                    })
+                });
+                if (!response.ok) throw new Error('Failed to restore task');
+                const restoredTask = await response.json();
+                
+                tasks.splice(lastDeletedIndex, 0, restoredTask);
+                lastDeletedTask = null;
+                lastDeletedIndex = null;
+                saveTasks();
+                renderTasks();
+                showToast('Task restored!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Could not restore task to server.', 'danger');
+            }
         }
     }
 
@@ -545,9 +666,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- INITIALIZATION ---
+    // Update user profile display in sidebar
+    const displayNameEl = document.getElementById('user-display-name');
+    if (displayNameEl) displayNameEl.textContent = loggedInUsername;
+    const avatarEl = document.getElementById('user-avatar');
+    if (avatarEl) avatarEl.textContent = loggedInUsername.charAt(0).toUpperCase();
+
+    // Hook Logout Button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        });
+    }
+
     updateDateAndGreeting();
-    updateDashboard();
-    renderTasks();
+    fetchTasks();
 
     // Setup date/time greetings updates every minute
     setInterval(updateDateAndGreeting, 60000);

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: orbit-task-manager
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: JWT_SECRET
+        generateValue: true

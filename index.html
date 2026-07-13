@@ -7,6 +7,12 @@
     <title>OrbitTask // Premium Productivity Dashboard</title>
     <!-- CSS stylesheet link -->
     <link rel="stylesheet" href="style.css">
+    <!-- Immediate Authentication Protection Check -->
+    <script>
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 <body>
 
@@ -122,6 +128,21 @@
                             </button>
                         </li>
                     </ul>
+                </div>
+
+                <!-- User Profile & Logout Panel -->
+                <div class="glass-panel user-profile-panel" id="user-profile-panel">
+                    <div class="user-info">
+                        <div class="user-avatar" id="user-avatar">U</div>
+                        <div class="user-details">
+                            <span class="user-name" id="user-display-name">Username</span>
+                            <span class="user-role">Productive User</span>
+                        </div>
+                    </div>
+                    <button class="btn-logout" id="logout-btn">
+                        <i data-lucide="log-out"></i>
+                        <span>Sign Out</span>
+                    </button>
                 </div>
             </aside>
 

@@ -1158,3 +1158,119 @@ textarea.form-input {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- USER PROFILE PANEL STYLE --- */
+.user-profile-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.25rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary) 0%, #a5b4fc 100%);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
+    text-transform: uppercase;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.user-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-role {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.btn-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-logout:hover {
+    color: var(--danger);
+    background: var(--danger-glow);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-logout i {
+    width: 16px;
+    height: 16px;
+}
+
+/* Responsive adjustment for Mobile Sidebar */
+@media (max-width: 768px) {
+    .sidebar .user-profile-panel {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        margin-top: 0 !important;
+    }
+    
+    .sidebar .user-profile-panel .user-info {
+        gap: 0.5rem !important;
+    }
+    
+    .sidebar .user-profile-panel .user-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .sidebar .user-profile-panel .user-role {
+        display: none !important;
+    }
+
+    .sidebar .user-profile-panel .user-name {
+        max-width: 80px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .sidebar .user-profile-panel .btn-logout {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.85rem !important;
+        white-space: nowrap !important;
+    }
+}

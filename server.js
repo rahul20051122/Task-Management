@@ -1,50 +1,30 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const cors = require('cors');
 const path = require('path');
+require('dotenv').config();
+// Running with JSON file-based storage.
 
-const PORT = 8000;
+const authRoutes = require('./routes/authRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const { ensureDataFiles } = require('./models/taskModel');
 
-const MIME_TYPES = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.svg': 'image/svg+xml',
-    '.ico': 'image/x-icon'
-};
+const app = express();
+const PORT = process.env.PORT || 8000;
 
-const server = http.createServer((req, res) => {
-    // Strip query parameters
-    const urlPath = req.url.split('?')[0];
-    let filePath = path.join(__dirname, urlPath);
-    
-    // Default to index.html for directory paths
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-        filePath = path.join(filePath, 'index.html');
-    }
+app.use(cors());
+app.use(express.json());
 
-    const extname = String(path.extname(filePath)).toLowerCase();
-    const contentType = MIME_TYPES[extname] || 'application/octet-stream';
+ensureDataFiles();
 
-    fs.readFile(filePath, (error, content) => {
-        if (error) {
-            if (error.code === 'ENOENT') {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
-                res.end('<h1>404 Not Found</h1>', 'utf-8');
-            } else {
-                res.writeHead(500);
-                res.end('Sorry, server error: ' + error.code + '\n');
-            }
-        } else {
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
-        }
-    });
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+
+app.use(express.static(path.join(__dirname)));
+
+app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-server.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}/`);
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
